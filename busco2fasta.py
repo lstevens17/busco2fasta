@@ -93,7 +93,7 @@ if __name__ == "__main__":
 		suffix = ".fna"
 	# proportion
 	print("busco2fasta.py parameters:")
-	print("\tinput_dir: " + results_dir)
+	print("\tinput_dir: " + results_dir.replace("/", ""))
 	print("\toutput_dir: " + outdir)
 	print("\tseqtype: " + seqtype)
 	print("\tproportion: " + str(proportion))
