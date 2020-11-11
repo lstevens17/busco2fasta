@@ -2,7 +2,7 @@
 
 A script to turn a set of BUSCO results into a directory of multisequence FASTA files
 
-
+```
 usage: busco2fasta.py [-h] -b BUSCO_DIR [-o OUTDIR] [-s {protein,nucleotide}]
                       [-p PROPORTION]
 
@@ -18,8 +18,8 @@ optional arguments:
                         output directory for FASTAs (default: b2f_output)
                         
   -s {protein,nucleotide}, --seqtype {protein,nucleotide}
-                        your chosen sequence type (defaut: protein)
+                        your chosen sequence type (default: protein)
                         
   -p PROPORTION, --proportion PROPORTION
-                        proportion of taxa required for a given BUSCO to be
-                        output as FASTA (default: 1.0)
+                        proportion of taxa required for a given BUSCO to be output as FASTA (default: 1.0)
+```                        
