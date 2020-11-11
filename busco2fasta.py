@@ -60,8 +60,11 @@ def create_output_fastas(results_dir, busco_dir_list, usable_scb_list, suffix, o
 		output_fasta_list = []
 		for busco_dir in busco_dir_list:
 				path = results_dir + busco_dir + "/run_" + lineage + "/busco_sequences/single_copy_busco_sequences/"
-				fasta_dict = parse_fasta(path + scbID + suffix, busco_dir)
-				output_fasta_list.append(fasta_dict)
+				try:
+					fasta_dict = parse_fasta(path + scbID + suffix, busco_dir)
+					output_fasta_list.append(fasta_dict)
+				except FileNotFoundError:
+					pass
 		with open(outdir + "/" + scbID + suffix, 'w') as outfile:
 			for fasta_dict in output_fasta_list:
 				for header, sequence in fasta_dict.items():
