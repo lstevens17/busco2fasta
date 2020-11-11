@@ -11,7 +11,7 @@ def get_list_of_busco_dirs(results_dir):
 		busco_dir_list.append(busco_dir)
 	# print output
 	print("[STATUS] Found " + str(len(busco_dir_list)) + " BUSCO runs in input directory ('" + results_dir.replace("/","") + "'):")
-	for busco_dir in busco_dir_list:
+	for busco_dir in sorted(busco_dir_list):
 		print("[STATUS] \t- " + busco_dir)
 	# return list
 	return busco_dir_list
@@ -36,7 +36,7 @@ def get_usable_buscos(scb_count_dict, proportion, busco_dir_list):
 	n_taxa = len(busco_dir_list)
 	min_taxon_count = int(round(n_taxa * proportion, 0))
 	usable_scb_list = []
-	print("[STATUS] Selecting BUSCOs present in ≥ " + str(min_taxon_count) + " taxa...")
+	print("[STATUS] Selecting BUSCOs present and single-copy in ≥ " + str(min_taxon_count) + " taxa...")
 	for scbID, count in scb_count_dict.items():
 		if count >= min_taxon_count:
 			usable_scb_list.append(scbID)
@@ -54,7 +54,8 @@ def parse_fasta(fasta_file):
 	return fasta_dict
 
 def create_output_fastas(results_dir, busco_dir_list, usable_scb_list, suffix, outdir, lineage):
-	print("[STATUS] Writing " + str(len(usable_scb_list)) + " " + seqtype + " FASTA files to output directory ('" + (outdir) + "')...") 
+	print("[STATUS] Writing " + str(len(usable_scb_list)) + " " + seqtype + " FASTA files to output directory ('" + (outdir) + "'). This may take a moment...") 
+	total, count = len(usable_scb_list), 0
 	for scbID in usable_scb_list:
 		output_fasta_list = []
 		for busco_dir in busco_dir_list:
@@ -64,9 +65,11 @@ def create_output_fastas(results_dir, busco_dir_list, usable_scb_list, suffix, o
 		with open(outdir + "/" + scbID + suffix, 'w') as outfile:
 			for fasta_dict in output_fasta_list:
 				for header, sequence in fasta_dict.items():
-		 			outfile.write(">" + busco_dir +  "." + header.replace(">", "").split(" ")[0] + "\n")
-	 				outfile.write(sequence + "\n")	
-
+					outfile.write(">" + busco_dir +  "." + header.replace(">", "").split(" ")[0] + "\n")
+					outfile.write(sequence + "\n")
+		print("[STATUS] \t" + str(count) + "/" + str(total) + " files written.", end='\r')
+		count += 1
+	print("[STATUS] \t" + str(count) + "/" + str(total) + " files written.")
 
 
 if __name__ == "__main__":
@@ -107,7 +110,7 @@ if __name__ == "__main__":
 	scb_count_dict, lineage = count_single_copy_buscos(results_dir, busco_dir_list, suffix)
 	usable_scb_list = get_usable_buscos(scb_count_dict, proportion, busco_dir_list)
 	create_output_fastas(results_dir, busco_dir_list, usable_scb_list, suffix, outdir, lineage)
-	print("[STATUS] Successfuly wrote " + str(len(usable_scb_list)) + " " + seqtype + " FASTA files. Run complete.")			
+	print("[STATUS] busco2fasta.py completed successfully.")			
 
 
 
