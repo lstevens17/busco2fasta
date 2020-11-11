@@ -42,12 +42,12 @@ def get_usable_buscos(scb_count_dict, proportion, busco_dir_list):
 			usable_scb_list.append(scbID)
 	return usable_scb_list
 
-def parse_fasta(fasta_file):
+def parse_fasta(fasta_file, prefix):
 	with open(fasta_file) as fasta:
 		fasta_dict = {}
 		for line in fasta:
 			if line.startswith(">"):
-				header = line.rstrip("\n")
+				header = ">" + prefix + "." + line.rstrip("\n").replace(">", "").split(" ")[0]
 				fasta_dict[header] = ''
 			else:
 				fasta_dict[header] += line.rstrip("\n")
@@ -59,13 +59,13 @@ def create_output_fastas(results_dir, busco_dir_list, usable_scb_list, suffix, o
 	for scbID in usable_scb_list:
 		output_fasta_list = []
 		for busco_dir in busco_dir_list:
-			path = results_dir + busco_dir + "/run_" + lineage + "/busco_sequences/single_copy_busco_sequences/"
-			fasta_dict = parse_fasta(path + scbID + suffix)
-			output_fasta_list.append(fasta_dict)
+				path = results_dir + busco_dir + "/run_" + lineage + "/busco_sequences/single_copy_busco_sequences/"
+				fasta_dict = parse_fasta(path + scbID + suffix, busco_dir)
+				output_fasta_list.append(fasta_dict)
 		with open(outdir + "/" + scbID + suffix, 'w') as outfile:
 			for fasta_dict in output_fasta_list:
 				for header, sequence in fasta_dict.items():
-					outfile.write(">" + busco_dir +  "." + header.replace(">", "").split(" ")[0] + "\n")
+					outfile.write(header + "\n")
 					outfile.write(sequence + "\n")
 		print("[STATUS] \t" + str(count) + "/" + str(total) + " files written.", end='\r')
 		count += 1
