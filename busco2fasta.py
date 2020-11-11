@@ -21,6 +21,7 @@ def count_single_copy_buscos(results_dir, busco_dir_list, suffix):
 	for busco_dir in busco_dir_list:
 		for item in os.listdir(results_dir + busco_dir):
 			if item.startswith("run_"):
+				lineage = item.replace("run_", "")
 				scb_file_list = os.listdir(results_dir + busco_dir + "/" + item + "/busco_sequences/single_copy_busco_sequences/")
 				for scb_file in scb_file_list:
 					if scb_file.endswith(suffix):
@@ -29,7 +30,7 @@ def count_single_copy_buscos(results_dir, busco_dir_list, suffix):
 							scb_count_dict[scbID] += 1
 						except KeyError:
 							scb_count_dict[scbID] = 1
-	return scb_count_dict
+	return scb_count_dict, lineage
 
 def get_usable_buscos(scb_count_dict, proportion, busco_dir_list):
 	n_taxa = len(busco_dir_list)
@@ -52,21 +53,21 @@ def parse_fasta(fasta_file):
 				fasta_dict[header] += line.rstrip("\n")
 	return fasta_dict
 
-def create_output_fastas(results_dir, busco_dir_list, usable_scb_list, suffix, outdir):
+def create_output_fastas(results_dir, busco_dir_list, usable_scb_list, suffix, outdir, lineage):
 	print("[STATUS] Writing " + str(len(usable_scb_list)) + " " + seqtype + " FASTA files to output directory ('" + (outdir) + "')...") 
-	for busco_dir in busco_dir_list:
-			for item in os.listdir(results_dir + busco_dir):
-				if item.startswith("run_"):
-					scb_file_list = os.listdir(results_dir + busco_dir + "/" + item + "/busco_sequences/single_copy_busco_sequences/")
-					for scb_file in scb_file_list:
-						full_path_to_scb_file = results_dir + busco_dir + "/" + item + "/busco_sequences/single_copy_busco_sequences/" + scb_file
-						scbID = scb_file.split(".")[0]
-						if scbID in usable_scb_list and scb_file.endswith(suffix):
-							fasta_dict = parse_fasta(full_path_to_scb_file)
-							with open(outdir + "/" + scbID + suffix, 'a') as outfile:
-								for header, sequence in fasta_dict.items():
-		 							outfile.write(">" + busco_dir +  "." + header.replace(">", "").split(" ")[0] + "\n")
-	 								outfile.write(sequence + "\n")	
+	for scbID in usable_scb_list:
+		output_fasta_list = []
+		for busco_dir in busco_dir_list:
+			path = results_dir + busco_dir + "/run_" + lineage + "/busco_sequences/single_copy_busco_sequences/"
+			fasta_dict = parse_fasta(path + scbID + suffix)
+			output_fasta_list.append(fasta_dict)
+		with open(outdir + "/" + scbID + suffix, 'w') as outfile:
+			for fasta_dict in output_fasta_list:
+				for header, sequence in fasta_dict.items():
+		 			outfile.write(">" + busco_dir +  "." + header.replace(">", "").split(" ")[0] + "\n")
+	 				outfile.write(sequence + "\n")	
+
+
 
 if __name__ == "__main__":
 	SCRIPT = "busco2fasta.py"
@@ -103,11 +104,10 @@ if __name__ == "__main__":
 	os.mkdir(outdir)
 	### run functions	
 	busco_dir_list = get_list_of_busco_dirs(results_dir)
-	scb_count_dict = count_single_copy_buscos(results_dir, busco_dir_list, suffix)
+	scb_count_dict, lineage = count_single_copy_buscos(results_dir, busco_dir_list, suffix)
 	usable_scb_list = get_usable_buscos(scb_count_dict, proportion, busco_dir_list)
-	create_output_fastas(results_dir, busco_dir_list, usable_scb_list, suffix, outdir)
-	print("[STATUS] Successfuly wrote " + str(len(usable_scb_list)) + " " + seqtype + " FASTA files. Run complete.")
-					
+	create_output_fastas(results_dir, busco_dir_list, usable_scb_list, suffix, outdir, lineage)
+	print("[STATUS] Successfuly wrote " + str(len(usable_scb_list)) + " " + seqtype + " FASTA files. Run complete.")			
 
 
 
