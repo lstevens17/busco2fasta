@@ -75,7 +75,7 @@ if __name__ == "__main__":
 	parser = argparse.ArgumentParser()
 	parser.add_argument("-b", "--busco_dir", type=str, help = "directory containing a set BUSCO results directories (e.g. one per taxon)", required=True)
 	parser.add_argument("-o", "--outdir", type=str, help = "output directory for FASTAs (default: b2f_output)", default="b2f_output")
-	parser.add_argument("-s", "--seqtype", type=str, help = "your chosen sequence type (defaut: protein)", choices={"protein", "nucleotide"}, default="protein")
+	parser.add_argument("-s", "--seqtype", type=str, help = "your chosen sequence type (default: protein)", choices={"protein", "nucleotide"}, default="protein")
 	parser.add_argument("-p", "--proportion", type=float, help = "proportion of taxa required for a given BUSCO to be output as FASTA (default: 1.0)", default=1.0)
 	args = parser.parse_args()
 	results_dir = args.busco_dir
